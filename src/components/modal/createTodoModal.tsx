@@ -45,6 +45,7 @@ export default function CreateTodoModal() {
   const onSubmit: SubmitHandler<TodoInput> = (data) => {
     console.log(data);
     createTodo(data);
+    handleClose();
   };
 
   return (
