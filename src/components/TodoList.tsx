@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
 import CreateTodoModal from "./modal/createTodoModal";
 import EditTodoModal from "./modal/editTodoModal";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { getClient } from "../lib/amplifyClient";
 
 const toTime = (iso?: string | null) => {
   if (!iso) return null;
@@ -31,8 +31,6 @@ const sampleTodos: Schema["Todo"]["type"][] = [
 ];
 type StatusType = Schema["Todo"]["nestedTypes"]["status"]["type"];
 
-const client = generateClient<Schema>();
-
 export const TodoList = () => {
   const [todos, setTodos] = useState<Schema["Todo"]["type"][]>(sampleTodos);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -41,15 +39,16 @@ export const TodoList = () => {
   );
   const [filter, setFilter] = useState<StatusType | undefined>(undefined);
   const [sort, setSort] = useState<"asc" | "desc" | undefined>(undefined);
+  const client = getClient();
 
   useEffect(() => {
     const subscribe = client.models.Todo.observeQuery().subscribe({
-      next: ({ items, isSynced }) => {
+      next: ({ items }) => {
         setTodos([...items]);
       },
     });
     return () => subscribe.unsubscribe();
-  }, []);
+  }, [client]);
 
   const handleDeleteTodo = async (todoId: string) => {
     await client.models.Todo.delete({ id: todoId });

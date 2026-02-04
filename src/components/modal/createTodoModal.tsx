@@ -5,7 +5,7 @@ import { useState } from "react";
 import { TextField } from "@mui/material";
 import type { Schema } from "../../../amplify/data/resource";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { generateClient } from "aws-amplify/data";
+import { getClient } from "../../lib/amplifyClient";
 
 const style = {
   position: "absolute",
@@ -21,8 +21,6 @@ const style = {
 
 type TodoInput = Omit<Schema["Todo"]["type"], "id" | "createdAt" | "updatedAt">;
 
-const client = generateClient<Schema>();
-
 export default function CreateTodoModal() {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -33,7 +31,8 @@ export default function CreateTodoModal() {
     handleSubmit,
     formState: { errors },
   } = useForm<TodoInput>();
-  console.log("errors", errors);
+
+  const client = getClient();
 
   const createTodo = async (data: TodoInput) => {
     await client.models.Todo.create({

@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import type { Schema } from "../../../amplify/data/resource";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { generateClient } from "aws-amplify/data";
+import { getClient } from "../../lib/amplifyClient";
 
 const style = {
   position: "absolute",
@@ -27,8 +27,6 @@ const style = {
 };
 
 type TodoInput = Omit<Schema["Todo"]["type"], "id" | "createdAt" | "updatedAt">;
-
-const client = generateClient<Schema>();
 
 type Props = {
   open: boolean;
@@ -52,10 +50,14 @@ export default function EditTodoModal(props: Props) {
     },
   });
 
+  const client = getClient();
+
   useEffect(() => {
     if (todoId) {
       const fetchTodo = async () => {
-        const { data: todo } = await client.models.Todo.get({ id: todoId });
+        const { data: todo } = await client.models.Todo.get({
+          id: todoId,
+        });
         console.log("todo", todo);
         reset({
           content: todo?.content,
@@ -64,7 +66,7 @@ export default function EditTodoModal(props: Props) {
       };
       fetchTodo();
     }
-  }, [todoId, reset]);
+  }, [todoId, reset, client]);
 
   const updateTodo = async (data: TodoInput) => {
     if (!todoId) {
