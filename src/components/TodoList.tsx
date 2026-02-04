@@ -43,11 +43,12 @@ export const TodoList = () => {
   const [sort, setSort] = useState<"asc" | "desc" | undefined>(undefined);
 
   useEffect(() => {
-    const fetchTodos = async () => {
-      const { data: todos } = await client.models.Todo.list();
-      setTodos(todos);
-    };
-    fetchTodos();
+    const subscribe = client.models.Todo.observeQuery().subscribe({
+      next: ({ items, isSynced }) => {
+        setTodos([...items]);
+      },
+    });
+    return () => subscribe.unsubscribe();
   }, []);
 
   const handleDeleteTodo = async (todoId: string) => {
