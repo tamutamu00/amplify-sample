@@ -1,0 +1,6 @@
+dist
+node_modules
+amplify
+eslint.config.js
+vite.config.ts
+tsconfig*.json
